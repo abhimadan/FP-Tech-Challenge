@@ -12,12 +12,10 @@ var db          = require('../config/db').connection;
 api.get('/api/apparel/:styleCode?', function(req, res) {
     if (req.params.styleCode) {
         db.query("SELECT * FROM main_db.apparel WHERE style_code = ?", [req.params.styleCode], function(err, rows, fields) {
-            // TODO: return some JSON for the angular controller to parse and display stuff; they give colour codes so maybe use those somehow?
             res.send(rows[0]);
         });
     } else {
         db.query("SELECT * FROM main_db.apparel", function(err, rows, fields) {
-            // TODO: return some JSON for the angular controller to parse and display stuff; they give colour codes so maybe use those somehow?
             res.send(rows);
         });
     }
@@ -25,7 +23,6 @@ api.get('/api/apparel/:styleCode?', function(req, res) {
 
 // API endpoint for /api/quote
 api.post('/api/quote', function(req, res) {
-    // TODO: take style code, colour, size, weight, number of apparel as request data
     // fetch price
     var price = getApparelPrice(req.body.styleCode, req.body.colorCode, req.body.sizeCode)
         .then(function(value) {
@@ -55,6 +52,8 @@ api.post('/api/quote', function(req, res) {
                 markupPrice: markupPrice.toFixed(2),
                 totalPrice: totalPrice.toFixed(2)
             });
+        }, function(err) {
+            res.send(err);
         });
 });
 
@@ -76,8 +75,12 @@ var getApparelPrice = function getPrice(style_code, color_code, size_code) {
 	https.get(url, function(res) {
         res.setEncoding('utf8');
 		res.on('data', function (data) {
-            var parsedPrice = data.match(/\sprice=\"\$\d+\.\d{2}\"/)[0];
-            var price = parseFloat(parsedPrice.substring(9, parsedPrice.length-1));
+            var parsedPriceMatches = data.match(/\sprice=\"\$\d+\.\d{2}\"/);
+            if (!parsedPriceMatches) {
+                apparelPriceDeferred.reject({error: "The given item does not exist."});
+                return;
+            }
+            var price = parseFloat(parsedPriceMatches[0].substring(9, parsedPrice.length-1));
 
             apparelPriceDeferred.resolve({price: price});
 		});

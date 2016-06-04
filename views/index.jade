@@ -8,13 +8,37 @@ html.
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	</head>
 	<body>
-		<div ng-controller="AppCtrl" ng-cloak></div>
-			<!-- INSERT HTML CODE HERE -->
-			<h2> FRESH PRINTS TECH CHALLENGE </h2>
+		<h2> FRESH PRINTS TECH CHALLENGE </h2>
 		<script src="js/lib/angular/angular.js"></script>
 		<script src="js/app.js"></script>
 		<script src="js/services.js"></script>
 		<script src="js/controllers.js"></script>
 		<script src="js/filters.js"></script>
 		<script src="js/directives.js"></script>
+
+		<div ng-app="myApp" ng-controller="AppCtrl" ng-cloak>
+			<div ng-show="computedPrice">
+				<p>Base Price: {{ price.basePrice }}</p>
+				<p>Shipping Price: {{ price.shippingPrice }}</p>
+				<p>Salesman Compensation Price: {{ price.salesmanCompPrice }}</p>
+				<p>Markup Price: {{ price.markupPrice }}</p>
+				<p>Total Price: {{ price.totalPrice }}</p>
+			</div>
+
+			<div ng-repeat="shirt in shirts" ng-init="shirt.selectedColor = shirt.colorCodes[0].id; shirt.selectedSize = shirt.SizeCodes[0].id; shirt.quantity = 1;">
+				<p ng-click="quote(shirt.styleCode, shirt.selectedColor, shirt.selectedSize, shirt.quantity, shirt.weight)">{{ shirt.styleCode }}</p>
+
+				<select name="selectedColor" id="selectedColor" ng-model="shirt.selectedColor">
+					<option ng-repeat="color in shirt.colorCodes" value="{{color.id}}">{{ color.name }}</option>
+				</select>
+
+				<select name="selectedSize" id="selectedSize" ng-model="shirt.selectedSize">
+					<option ng-repeat="size in shirt.sizeCodes" value="{{size.id}}">{{ size.name }}</option>
+				</select>
+
+				Quantity: <input type="number" min="1" ng-model="shirt.quantity" />
+
+				<div ng-show="errorStyle == shirt.styleCode">This shirt was not found. Price could not be quoted.</div>
+			</div>
+		</div>
 	</body>
